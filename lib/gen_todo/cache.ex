@@ -5,6 +5,10 @@ defmodule GenTodo.Cache do
     GenServer.call(:cache, {:get})
   end
 
+  def get_one_value(id) do
+    GenServer.call(:cache, {:get_one, id})
+  end
+
   def create_value(value) do
     GenServer.call(:cache, {:create, value})
   end
@@ -29,6 +33,14 @@ defmodule GenTodo.Cache do
 
   def handle_call({:get}, _from, { _pki, state} = complete_state) do
     {:reply, state, complete_state}
+  end
+
+  def handle_call({:get_one, id_to_get}, _from, { _pki, state} = complete_state) do
+    IO.puts id_to_get
+    value = Enum.find(state, fn(%{id: id, value: _value} ) ->
+      id == id_to_get
+    end)
+    {:reply, value, complete_state}
   end
 
   def handle_call( {:create, new_value}, _from,  {pki, state} ) do

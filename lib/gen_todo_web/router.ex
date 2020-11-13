@@ -13,21 +13,28 @@ defmodule GenTodoWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", GenTodoWeb do
+  scope "/" do
     pipe_through :browser
 
-    get "/", PageController, :index
-    get "/rest", RestController, :index
-    get "/ws", SocketController, :index
+    get "/", GenTodoWeb.PageController, :index
+    get "/rest", GenTodoWeb.RestController, :index
+    get "/ws", GenTodoWeb.SocketController, :index
+    get "/gql", GenTodoWeb.GqlController, :index
   end
 
   # Other scopes may use custom stacks.
-  scope "/api", GenTodoWeb do
+  scope "/api" do
+
     pipe_through :api
-    get "/todos", ValueAPIController, :get_all_values
-    post "/todos/create", ValueAPIController, :create_value
-    post "/todos/delete", ValueAPIController, :delete_value
-    post "/todos/update", ValueAPIController, :update_value
+
+    forward "/graphiql", Absinthe.Plug.GraphiQL, schema: GenTodoWeb.Schema
+
+    forward "/graph", Absinthe.Plug, schema: GenTodoWeb.Schema
+
+    get "/todos", GenTodoWeb.ValueAPIController, :get_all_values
+    post "/todos/create", GenTodoWeb.ValueAPIController, :create_value
+    post "/todos/delete", GenTodoWeb.ValueAPIController, :delete_value
+    post "/todos/update", GenTodoWeb.ValueAPIController, :update_value
   end
 
   # Enables LiveDashboard only for development
